@@ -1,0 +1,12 @@
+.container{
+	max-width: 1000px;
+  padding-left:30%;
+  padding-right: 20px;
+  margin: 0 auto;
+	position:relative;
+	top:200px;
+
+}
+.question {
+	padding-left:10%;
+}

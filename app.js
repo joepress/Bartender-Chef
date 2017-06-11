@@ -1,8 +1,9 @@
 var state = {
 	questions: [],
 	
-	prefreneces:[],
+	preferences:[],
 	
+	drink:[],
 	
 	currentQuestionIndex:0,
 	score:0
@@ -21,52 +22,34 @@ var questionTemplate =
 			"</div>";	//template for the question i will build
 				
 	
-function Question(text,choices,correct){
+function Question(text,choices,ingredients,correct){
 	this.text = text;
 	this.choices = choices;
+	this.ingredients = ingredients;
 	this.correct = correct;
 	
 	}; // create a functiion with the three parameters, text,choices,correct, and assign them to the current text, choices, and correct.
 	
 	
-	var questStrong = new Question('Do ye like yer drinks strong?',['ye', 'na'], 'ya');
-	state.questions.push(questStrong);
+var questStrong = new Question('Do ye like yer drinks strong?', ['ye', 'na'], ['Glug of rum', 'slug of whisky', 'splash of gin'], 'ye');
+state.questions.push(questStrong); 
 	
-	var questSalty= new Question('Do ye like it with a salty tang?',['ye', 'na'], 'ya' );
-	state.questions.push(questSalty);
+var questSalty= new Question('Do ye like it with a salty tang?',['ye', 'na'], ['Olive on a stick', 'salt-dusted rim', 'rasher of bacon'], 'ye');
+state.questions.push(questSalty);
 	
-	var questBitter = new Question('Are ye a lubber who likes it bitter?',['ye', 'na'], 'ya');
-	state.questions.push(questBitter);
+var questBitter = new Question('Are ye a lubber who likes it bitter?',['ye', 'na'], ['Shake of bitters', 'splash of tonic', 'twist of lemon peel'], 'ye');
+state.questions.push(questBitter);
 	
-	var questSweet = new Question('Would ye like a bit of sweetness with yer poison?',['ye', 'na'], 'ya');
-	state.questions.push(questSweet);
+var questSweet = new Question('Would ye like a bit of sweetness with yer poison?',['ye', 'na'], ['Sugar cube', 'spoonful of honey', 'splash of cola'], 'ye');
+state.questions.push(questSweet);
 	
-	var questFruity = new Question('Are ye one for a fruity finish?',['ye', 'na'], 'ya');
-	state.questions.push(questFruity);
+var questFruity = new Question('Are ye one for a fruity finish?',['ye', 'na'], ['Slice of orange', 'dash of cassis', 'cherry on top'], 'ye');
+state.questions.push(questFruity);
 	
-function Ingredient(ingredients){
-	this.ingredients = ingredients;
-}; 
-
-	var strongIngredients = new Ingredient(['Glug of rum', 'slug of whisky', 'splash of gin']);
-	/*state.prefreneces.push(strongIngredients);
 	
-	var saltyIngredients = new Ingredient(['Olive on a stick', 'salt-dusted rim', 'rasher of bacon']);
-	state.saltyIngredients.push(saltyIngredients);
-	
-	var bitterIngredients = new Ingredient(['Shake of bitters', 'splash of tonic', 'twist of lemon peel']);
-	state.bitterIngredients.push(bitterIngredients);
-	
-	var sweetIngredients = new Ingredient(['Sugar cube', 'spoonful of honey', 'splash of cola']);
-	state.sweetIngredients.push(sweetIngredients);
-	
-	var fruityIngredients = new Ingredient(['Slice of orange', 'dash of cassis', 'cherry on top']);
-	state.fruityIngredients.push(fruityIngredients);*/
-
-	
-	function advanceQuestion(state){
+function advanceQuestion(state){
 	if(state.currentQuestionIndex == state.questions.length - 1){
-		alert('Congrats on finishing the quiz, lets see what your score is: '+ state.score + '/5');
+		alert('Your drink has been served. It has a '+state.drink.join(', ')+'. Enjoy!');
 		resetApp();
 	}else{
 		renderQuestion(state);
@@ -75,27 +58,28 @@ function Ingredient(ingredients){
 	
 }
 
-function thirty() {
-  var preferred = '';
-	if($('input[name="answer"]:checked').val() === state.questions[state.currentQuestionIndex].correct){
-		state.preferences.push(this.ingredients);
-	}
-		
-		console.log(preferred);
+var barTender = function(drinks){
+	this.drinks = drinks;
 };
+var newDrink = new barTender(state.preferences);
 
-Ingredient.prototype.createDrink = function(length,state){
-    var createDrink = "";
-    for (var i=0; i<length; i++) {
-         createDrink += this.ingredients[i % this.ingredients.length] + " ";
-    }
-    console.log(createDrink);
-};
+barTender.prototype.createDrink = function(){
+	state.drink = [];
+  var createDrink = "";
+  this.drinks.map(function(key){
+		if ($("input[name='answer']:checked").val() === state.questions[state.currentQuestionIndex].correct){
+		state.drink.push(key[Math.floor(Math.random()* 3) + 0]);
+		}else{
+			state.drink.push(key[Math.floor(Math.random()* 3) + 0]);
+		}
+});
+	
+}
+function randomElement(elements){
+	return elements[Math.floor(Math.random()*elements.length)];
+}
 
-strongIngredients.createDrink(3);
-
-
-	function renderQuestion (state){
+function renderQuestion (state){
 	var element = $(questionTemplate);
 	var quest = state.questions[state.currentQuestionIndex];
 	element.find('.questionNumber').text(state.currentQuestionIndex + 1 +'/5');
@@ -115,12 +99,16 @@ strongIngredients.createDrink(3);
 function score(){
 	if ($("input[name='answer']:checked").val() === state.questions[state.currentQuestionIndex].correct){
 		state.score++;
-		alert(state.congrats);
-	}else{
-		alert(state.failure);
 	}
 }																					 
 
+
+
+function thirty() {
+	if($("input[name='answer']:checked").val() === state.questions[state.currentQuestionIndex].correct){
+		state.preferences.push(state.questions[state.currentQuestionIndex].ingredients);
+	}
+};
 			
 function resetApp(){
 	$('#questionContainer').hide();
@@ -140,6 +128,9 @@ $(document).ready(function(){
 	$(document).on('submit','.radioChoices',function(e){
 		e.preventDefault();
 		score();
+		thirty();
+		newDrink.createDrink();
+		barTender(state.preferences);
 		advanceQuestion(state);
 		renderQuestion(state);	
 	});
@@ -150,4 +141,4 @@ $(document).on('click','.startOver',function(e){
 	e.stopPropagation();
 	$('#questionContainer').hide();
 	$('.openingPage').show();
-})	
+})
